@@ -2,9 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { Album } from './entities/album.entity';
 import { CreateAlbumDto, UpdateAlbumDto } from './dto/album.dto';
+import { TrackService } from 'src/track/track.service';
 
 @Injectable()
 export class AlbumService {
+  constructor(private readonly trackService: TrackService) {}
   private albums: Album[] = [];
 
   findAll(): Album[] {
@@ -49,6 +51,7 @@ export class AlbumService {
       throw new NotFoundException('Album not found');
     }
     this.albums.splice(index, 1);
+    this.trackService.nullifyAlbumReferences(id);
   }
 
   nullifyArtistReferences(artistId: string): void {
