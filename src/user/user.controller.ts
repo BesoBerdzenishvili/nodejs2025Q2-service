@@ -11,7 +11,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdatePasswordDto } from './entities/user.entity';
+import { CreateUserDto, UpdatePasswordDto } from './dto/user.dto';
 
 @Controller('user')
 export class UserController {
