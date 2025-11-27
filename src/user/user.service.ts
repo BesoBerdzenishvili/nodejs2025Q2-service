@@ -4,7 +4,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { User, CreateUserDto, UpdatePasswordDto } from './entities/user.entity';
+import { User } from './entities/user.entity';
+import { CreateUserDto, UpdatePasswordDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -62,5 +63,9 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
     this.users.splice(index, 1);
+  }
+
+  findByLogin(login: string): User | undefined {
+    return this.users.find((u) => u.login === login);
   }
 }

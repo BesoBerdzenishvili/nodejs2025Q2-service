@@ -9,3 +9,13 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class UpdatePasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  oldPassword: string;
+
+  @IsString()
+  @IsNotEmpty()
+  newPassword: string;
+}
