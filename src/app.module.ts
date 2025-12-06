@@ -29,6 +29,9 @@ import { Favorite } from './favorites/entities/favorite.entity';
       database: process.env.DB_NAME,
       entities: [User, Artist, Album, Track, Favorite],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
     UserModule,
     ArtistModule,
