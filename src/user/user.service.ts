@@ -3,50 +3,53 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { User } from './entities/user.entity';
 import { CreateUserDto, UpdatePasswordDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
-  private users: User[] = [];
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
-  findAll(): Omit<User, 'password'>[] {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return this.users.map(({ password, ...user }) => user);
+  async findAll(): Promise<Omit<User, 'password'>[]> {
+    const users = await this.usersRepository.find();
+    return users.map(({ password, ...user }) => user);
   }
 
-  findOne(id: string): Omit<User, 'password'> {
-    const user = this.users.find((u) => u.id === id);
+  async findOne(id: string): Promise<Omit<User, 'password'>> {
+    const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
     return result;
   }
 
-  create(createUserDto: CreateUserDto): Omit<User, 'password'> {
+  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     const now = Date.now();
-    const user: User = {
+    const user = this.usersRepository.create({
       id: randomUUID(),
       login: createUserDto.login,
       password: createUserDto.password,
       version: 1,
       createdAt: now,
       updatedAt: now,
-    };
-    this.users.push(user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    });
+    await this.usersRepository.save(user);
     const { password, ...result } = user;
     return result;
   }
 
-  update(
+  async update(
     id: string,
     updatePasswordDto: UpdatePasswordDto,
-  ): Omit<User, 'password'> {
-    const user = this.users.find((u) => u.id === id);
+  ): Promise<Omit<User, 'password'>> {
+    const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -56,20 +59,19 @@ export class UserService {
     user.password = updatePasswordDto.newPassword;
     user.version += 1;
     user.updatedAt = Date.now();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    await this.usersRepository.save(user);
     const { password, ...result } = user;
     return result;
   }
 
-  remove(id: string): void {
-    const index = this.users.findIndex((u) => u.id === id);
-    if (index === -1) {
+  async remove(id: string): Promise<void> {
+    const result = await this.usersRepository.delete(id);
+    if (result.affected === 0) {
       throw new NotFoundException('User not found');
     }
-    this.users.splice(index, 1);
   }
 
-  findByLogin(login: string): User | undefined {
-    return this.users.find((u) => u.login === login);
+  async findByLogin(login: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { login } });
   }
 }
