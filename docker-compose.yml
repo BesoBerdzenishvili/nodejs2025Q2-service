@@ -23,6 +23,7 @@ services:
 
   app:
     build: .
+    image: home-library-app:latest
     container_name: home-library-app
     environment:
       PORT: ${PORT}
