@@ -4,6 +4,7 @@
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+- Docker - [Download & Install Docker](https://docs.docker.com/engine/install/)
 
 ## Downloading
 
@@ -11,62 +12,38 @@
 git clone {repository URL}
 ```
 
-## Installing NPM modules
+## Create .env File
+
+Copy the example environment file. All values are already set:
 
 ```
-npm install
+cp .env.example .env
 ```
 
-## Running application
+## Start the Application with Docker
+
+MAKE SURE DOCKER IS RUNNING
+
+then start all services:
 
 ```
-npm start
+docker-compose up
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+This will build and run the application with all required services (e.g.: PostgreSQL).
 
-## Testing
+## Run Vulnerability Scan
 
-After application running open new terminal and enter:
-
-To run all tests without authorization
+After the Docker containers are up, run the vulnerability scan:
 
 ```
-npm run test
+npm run scan:docker
 ```
 
-To run only one of all test suites
+## Using the Prebuilt Docker Image (Optional)
+
+A ready-made image is available on hub.docker.com:
 
 ```
-npm run test -- <path to suite>
+docker pull besoberdzenishvili14/home-library-app
 ```
-
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
-### Auto-fix and format
-
-```
-npm run lint
-```
-
-```
-npm run format
-```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
