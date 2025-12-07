@@ -23,10 +23,10 @@ services:
 
   app:
     build: .
-    restart: unless-stopped
+    restart: always
     volumes:
       - ./src:/app/src
-    image: home-library-app:latest
+    image: besoberdzenishvili14/home-library-app:latest
     container_name: home-library-app
     environment:
       PORT: ${PORT}

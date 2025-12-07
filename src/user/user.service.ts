@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,6 +19,7 @@ export class UserService {
 
   async findAll(): Promise<Omit<User, 'password'>[]> {
     const users = await this.usersRepository.find();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return users.map(({ password, ...user }) => user);
   }
 
@@ -26,11 +28,20 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
     return result;
   }
 
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+    const existingUser = await this.usersRepository.findOne({
+      where: { login: createUserDto.login },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('User with this login already exists');
+    }
+
     const now = Date.now();
     const user = this.usersRepository.create({
       id: randomUUID(),
@@ -41,6 +52,7 @@ export class UserService {
       updatedAt: now,
     });
     await this.usersRepository.save(user);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
     return result;
   }
@@ -60,15 +72,17 @@ export class UserService {
     user.version += 1;
     user.updatedAt = Date.now();
     await this.usersRepository.save(user);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
     return result;
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.usersRepository.delete(id);
-    if (result.affected === 0) {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) {
       throw new NotFoundException('User not found');
     }
+    await this.usersRepository.delete(id);
   }
 
   async findByLogin(login: string): Promise<User | undefined> {
