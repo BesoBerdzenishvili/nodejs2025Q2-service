@@ -24,7 +24,21 @@ cp .env.example .env
 
 MAKE SURE DOCKER IS RUNNING
 
-then start all services:
+In order to check image size of the image pull image from hub.docker.com:
+
+```
+docker pull besoberdzenishvili14/home-library-app
+```
+
+Then check the size with:
+
+```
+docker image
+```
+
+## Start the Application with Docker
+
+To start all services:
 
 ```
 docker-compose up --watch
@@ -40,12 +54,4 @@ After the Docker containers are up, run the vulnerability scan:
 
 ```
 npm run scan:docker
-```
-
-## Using the Prebuilt Docker Image (Optional)
-
-A ready-made image is available on hub.docker.com:
-
-```
-docker pull besoberdzenishvili14/home-library-app
 ```

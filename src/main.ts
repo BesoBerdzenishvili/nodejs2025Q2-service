@@ -35,4 +35,12 @@ async function bootstrap() {
   console.log(`Application is running on: http://localhost:${port}`);
 }
 
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});
+
 bootstrap();
