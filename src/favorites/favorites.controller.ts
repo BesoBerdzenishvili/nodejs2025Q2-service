@@ -54,7 +54,7 @@ export class FavoritesController {
 
   @Delete('track/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeTrack(@Param('id', ParseUUIDPipe) id: string) {
-    this.favoritesService.removeTrack(id);
+  async removeTrack(@Param('id', ParseUUIDPipe) id: string) {
+    await this.favoritesService.removeTrack(id);
   }
 }

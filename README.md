@@ -55,3 +55,17 @@ After the Docker containers are up, run the vulnerability scan:
 ```
 npm run scan:docker
 ```
+
+## Run tests
+
+After the Docker containers are up, first install dependencies:
+
+```
+npm i
+```
+
+and then run
+
+```
+npm run test
+```
