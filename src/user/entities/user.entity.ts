@@ -1,24 +1,31 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  VersionColumn,
+} from 'typeorm';
+
+const timeToNumber = {
+  to: (value: number | null) => value,
+  from: (value: Date | null) => (value ? value.getTime() : null),
+};
 
 @Entity('users')
 export class User {
-  @PrimaryColumn('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({ type: 'varchar', unique: true })
+  @Column()
   login: string;
-
-  @Column({ type: 'varchar' })
+  @Column()
   password: string;
-
-  @Column({ type: 'int', default: 1 })
+  @VersionColumn()
   version: number;
-
-  @Column({ type: 'bigint' })
-  createdAt: number;
-
-  @Column({ type: 'bigint' })
-  updatedAt: number;
+  @CreateDateColumn({ type: 'timestamp', transformer: timeToNumber })
+  createdAt: Date;
+  @UpdateDateColumn({ type: 'timestamp', transformer: timeToNumber })
+  updatedAt: Date;
 }
 
 export interface CreateUserDto {

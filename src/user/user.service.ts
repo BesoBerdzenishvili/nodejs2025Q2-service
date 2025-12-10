@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-  ConflictException,
-} from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { randomUUID } from 'crypto';
-import { User } from './entities/user.entity';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdatePasswordDto } from './dto/user.dto';
+
+import { isUUID } from 'class-validator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -17,75 +13,56 @@ export class UserService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findAll(): Promise<Omit<User, 'password'>[]> {
-    const users = await this.usersRepository.find();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return users.map(({ password, ...user }) => user);
+  async findAll() {
+    return await this.usersRepository.find();
   }
 
-  async findOne(id: string): Promise<Omit<User, 'password'>> {
-    const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
+  async findOne(id: string) {
+    if (!isUUID(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
-  }
-
-  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
-    const existingUser = await this.usersRepository.findOne({
-      where: { login: createUserDto.login },
-    });
-
-    if (existingUser) {
-      throw new ConflictException('User with this login already exists');
-    }
-
-    const now = Date.now();
-    const user = this.usersRepository.create({
-      id: randomUUID(),
-      login: createUserDto.login,
-      password: createUserDto.password,
-      version: 1,
-      createdAt: now,
-      updatedAt: now,
-    });
-    await this.usersRepository.save(user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
-  }
-
-  async update(
-    id: string,
-    updatePasswordDto: UpdatePasswordDto,
-  ): Promise<Omit<User, 'password'>> {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new HttpException("User doesn't exist", HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    const user = this.usersRepository.create(createUserDto);
+    const newUser = await this.usersRepository.save(user);
+    delete newUser.password;
+    return newUser;
+  }
+
+  async update(id: string, updatePasswordDto: UpdatePasswordDto) {
+    if (!isUUID(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.usersRepository.findOneBy({ id });
+    if (!user) {
+      throw new HttpException("User doesn't exist", HttpStatus.NOT_FOUND);
     }
     if (user.password !== updatePasswordDto.oldPassword) {
-      throw new ForbiddenException('Old password is incorrect');
+      throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
     }
-    user.password = updatePasswordDto.newPassword;
-    user.version += 1;
-    user.updatedAt = Date.now();
-    await this.usersRepository.save(user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
+    const updatedUser = await this.usersRepository.update(
+      { id },
+      {
+        password: updatePasswordDto.newPassword,
+      },
+    );
+    return updatedUser;
   }
 
-  async remove(id: string): Promise<void> {
-    const user = await this.usersRepository.findOne({ where: { id } });
+  async remove(id: string) {
+    if (!isUUID(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new HttpException("Record doesn't exist", HttpStatus.NOT_FOUND);
     }
-    await this.usersRepository.delete(id);
-  }
-
-  async findByLogin(login: string): Promise<User | undefined> {
-    return this.usersRepository.findOne({ where: { login } });
+    await this.usersRepository.delete({ id });
   }
 }

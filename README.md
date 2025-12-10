@@ -20,7 +20,7 @@ Copy the example environment file. All values are already set:
 cp .env.example .env
 ```
 
-## Start the Application with Docker
+## Check the Docker Image size
 
 MAKE SURE DOCKER IS RUNNING
 
