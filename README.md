@@ -46,7 +46,7 @@ docker-compose up --watch
 
 This will build and run the application with all required services (e.g.: PostgreSQL).
 
-App will run in a watch mode so any time change is made in src folder app will be reloaded. E.g. change "Hello World!" in app.service.ts and refresh the localhost:4000 page in browser to see the changes.
+App will run in a watch mode so any time change is made in src folder app will be reloaded. E.g. change "Hello World!" in app.service.ts and refresh the https://localhost:4000 page in browser to see the changes.
 
 ## Run Vulnerability Scan
 

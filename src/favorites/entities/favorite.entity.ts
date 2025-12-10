@@ -1,21 +1,24 @@
 import { Album } from '../../album/entities/album.entity';
 import { Track } from '../../track/entities/track.entity';
 import { Artist } from '../../artist/entities/artist.entity';
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 
 @Entity('favorites')
 export class Favorite {
-  @PrimaryColumn('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', nullable: true })
-  artistId: string | null;
+  @ManyToMany(() => Artist)
+  @JoinTable()
+  artists: Artist[];
 
-  @Column({ type: 'uuid', nullable: true })
-  albumId: string | null;
+  @ManyToMany(() => Album)
+  @JoinTable()
+  albums: Album[];
 
-  @Column({ type: 'uuid', nullable: true })
-  trackId: string | null;
+  @ManyToMany(() => Track)
+  @JoinTable()
+  tracks: Track[];
 }
 
 export interface Favorites {
