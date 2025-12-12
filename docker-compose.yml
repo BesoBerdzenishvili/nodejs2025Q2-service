@@ -33,7 +33,6 @@ services:
             - node_modules/
         - action: rebuild
           path: package.json
-    image: besoberdzenishvili14/home-library-app:latest
     container_name: home-library-app
     environment:
       PORT: ${PORT}
