@@ -42,6 +42,7 @@ export class AuthService {
 
     const savedUser = await this.usersRepository.save(user);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = savedUser;
     return result;
   }
