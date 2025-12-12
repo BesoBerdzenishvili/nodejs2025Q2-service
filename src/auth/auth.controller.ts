@@ -1,5 +1,6 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { AuthService, SignupDto, LoginDto, RefreshDto } from './auth.service';
+import { AuthService } from './auth.service';
+import { SignupDto, LoginDto, RefreshDto } from './dto/auth.dto';
 import { Public } from './decorators/public.decorator';
 
 @Controller('auth')

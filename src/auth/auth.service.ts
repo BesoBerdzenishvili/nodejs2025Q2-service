@@ -10,20 +10,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
-
-export interface SignupDto {
-  login: string;
-  password: string;
-}
-
-export interface LoginDto {
-  login: string;
-  password: string;
-}
-
-export interface RefreshDto {
-  refreshToken: string;
-}
+import { SignupDto, LoginDto, RefreshDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
