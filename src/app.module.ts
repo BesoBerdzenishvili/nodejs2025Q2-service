@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -13,6 +15,8 @@ import { Artist } from './artist/entities/artist.entity';
 import { Album } from './album/entities/album.entity';
 import { Track } from './track/entities/track.entity';
 import { Favorite } from './favorites/entities/favorite.entity';
+import { CustomLoggingService } from './logging/logging.service';
+import { LoggingInterceptor } from './logging/logging.interceptor';
 
 @Module({
   imports: [
@@ -32,6 +36,9 @@ import { Favorite } from './favorites/entities/favorite.entity';
       ssl: false,
       extra: { ssl: false },
     }),
+    JwtModule.register({
+      global: true,
+    }),
     UserModule,
     ArtistModule,
     AlbumModule,
@@ -39,6 +46,13 @@ import { Favorite } from './favorites/entities/favorite.entity';
     FavoritesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    CustomLoggingService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}
