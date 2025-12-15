@@ -55,3 +55,5 @@ and then run
 ```
 npm run test:auth
 ```
+
+After running the tests you can check application and error logs in 'logs' folder which is in a root folder.

@@ -54,6 +54,8 @@ services:
     networks:
       - home-library-network
     command: npm run start:dev
+    volumes:
+      - ./logs:/app/logs
 
 volumes:
   postgres_data:
