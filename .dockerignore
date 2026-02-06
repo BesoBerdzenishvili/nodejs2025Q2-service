@@ -13,5 +13,6 @@ README.md
 coverage
 .nyc_output
 *.log
+logs
 .eslintrc.js
 jest.config.json

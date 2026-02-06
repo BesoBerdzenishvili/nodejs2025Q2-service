@@ -20,25 +20,11 @@ Copy the example environment file. All values are already set:
 cp .env.example .env
 ```
 
-## Check the Docker Image size
-
-MAKE SURE DOCKER IS RUNNING
-
-In order to check image size of the image pull image from hub.docker.com:
-
-```
-docker pull besoberdzenishvili14/home-library-app
-```
-
-Then check the size with:
-
-```
-docker image
-```
-
 ## Start the Application with Docker
 
-To start all services:
+MAKE SURE DOCKER IS RUNNING!
+
+To start all services run:
 
 ```
 docker-compose up --watch
@@ -67,5 +53,7 @@ npm i
 and then run
 
 ```
-npm run test
+npm run test:auth
 ```
+
+After running the tests you can check application and error logs in 'logs' folder which is in a root folder.
