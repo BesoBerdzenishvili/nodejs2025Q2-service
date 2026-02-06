@@ -6,9 +6,15 @@ import { join } from 'path';
 import { readFileSync } from 'fs';
 import { load } from 'js-yaml';
 import * as swaggerUi from 'swagger-ui-express';
+import { CustomLoggingService } from './logging/logging.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  const logger = app.get(CustomLoggingService);
+  app.useLogger(logger);
 
   const yamlPath = join(process.cwd(), 'doc', 'api.yaml');
   const yamlFile = readFileSync(yamlPath, 'utf8');
@@ -32,7 +38,15 @@ async function bootstrap() {
 
   const port = process.env.PORT || 4000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`Application is running on: http://localhost:${port}`);
 }
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});
 
 bootstrap();

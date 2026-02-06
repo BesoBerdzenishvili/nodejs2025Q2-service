@@ -4,6 +4,7 @@
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+- Docker - [Download & Install Docker](https://docs.docker.com/engine/install/)
 
 ## Downloading
 
@@ -11,62 +12,48 @@
 git clone {repository URL}
 ```
 
-## Installing NPM modules
+## Create .env File
+
+Copy the example environment file. All values are already set:
 
 ```
-npm install
+cp .env.example .env
 ```
 
-## Running application
+## Start the Application with Docker
+
+MAKE SURE DOCKER IS RUNNING!
+
+To start all services run:
 
 ```
-npm start
+docker-compose up --watch
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+This will build and run the application with all required services (e.g.: PostgreSQL).
 
-## Testing
+App will run in a watch mode so any time change is made in src folder app will be reloaded. E.g. change "Hello World!" in app.service.ts and refresh the https://localhost:4000 page in browser to see the changes.
 
-After application running open new terminal and enter:
+## Run Vulnerability Scan
 
-To run all tests without authorization
+After the Docker containers are up, run the vulnerability scan:
 
 ```
-npm run test
+npm run scan:docker
 ```
 
-To run only one of all test suites
+## Run tests
+
+After the Docker containers are up, first install dependencies:
 
 ```
-npm run test -- <path to suite>
+npm i
 ```
 
-To run all test with authorization
+and then run
 
 ```
 npm run test:auth
 ```
 
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
-### Auto-fix and format
-
-```
-npm run lint
-```
-
-```
-npm run format
-```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+After running the tests you can check application and error logs in 'logs' folder which is in a root folder.

@@ -1,27 +1,13 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-
-export class SignupDto {
-  @IsString()
-  @IsNotEmpty()
+export interface SignupDto {
   login: string;
-
-  @IsString()
-  @IsNotEmpty()
   password: string;
 }
 
-export class LoginDto {
-  @IsString()
-  @IsNotEmpty()
+export interface LoginDto {
   login: string;
-
-  @IsString()
-  @IsNotEmpty()
   password: string;
 }
 
-export class RefreshTokenDto {
-  @IsString()
-  @IsOptional()
-  refreshToken?: string;
+export interface RefreshDto {
+  refreshToken: string;
 }

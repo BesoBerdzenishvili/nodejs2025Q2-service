@@ -1,75 +1,68 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { User } from './entities/user.entity';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdatePasswordDto } from './dto/user.dto';
+
+import { isUUID } from 'class-validator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  private users: User[] = [];
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
-  findAll(): Omit<User, 'password'>[] {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return this.users.map(({ password, ...user }) => user);
+  async findAll() {
+    return await this.usersRepository.find();
   }
 
-  findOne(id: string): Omit<User, 'password'> {
-    const user = this.users.find((u) => u.id === id);
-    if (!user) {
-      throw new NotFoundException('User not found');
+  async findOne(id: string) {
+    if (!isUUID(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
-  }
-
-  create(createUserDto: CreateUserDto): Omit<User, 'password'> {
-    const now = Date.now();
-    const user: User = {
-      id: randomUUID(),
-      login: createUserDto.login,
-      password: createUserDto.password,
-      version: 1,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.users.push(user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
-  }
-
-  update(
-    id: string,
-    updatePasswordDto: UpdatePasswordDto,
-  ): Omit<User, 'password'> {
-    const user = this.users.find((u) => u.id === id);
+    const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new HttpException("User doesn't exist", HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    const user = this.usersRepository.create(createUserDto);
+    const newUser = await this.usersRepository.save(user);
+    delete newUser.password;
+    return newUser;
+  }
+
+  async update(id: string, updatePasswordDto: UpdatePasswordDto) {
+    if (!isUUID(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.usersRepository.findOneBy({ id });
+    if (!user) {
+      throw new HttpException("User doesn't exist", HttpStatus.NOT_FOUND);
     }
     if (user.password !== updatePasswordDto.oldPassword) {
-      throw new ForbiddenException('Old password is incorrect');
+      throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
     }
-    user.password = updatePasswordDto.newPassword;
-    user.version += 1;
-    user.updatedAt = Date.now();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
+    const updatedUser = await this.usersRepository.update(
+      { id },
+      {
+        password: updatePasswordDto.newPassword,
+      },
+    );
+    return updatedUser;
   }
 
-  remove(id: string): void {
-    const index = this.users.findIndex((u) => u.id === id);
-    if (index === -1) {
-      throw new NotFoundException('User not found');
+  async remove(id: string) {
+    if (!isUUID(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
     }
-    this.users.splice(index, 1);
-  }
-
-  findByLogin(login: string): User | undefined {
-    return this.users.find((u) => u.login === login);
+    const user = await this.usersRepository.findOneBy({ id });
+    if (!user) {
+      throw new HttpException("Record doesn't exist", HttpStatus.NOT_FOUND);
+    }
+    await this.usersRepository.delete({ id });
   }
 }
